@@ -1,11 +1,19 @@
 @echo off
-echo 即将删除以下文件夹里的所有内容:
-echo    F:\sensevox\录音\
-echo    F:\sensevox\转写记录\
+REM Clear sensevox audio records and transcripts
+REM (Chinese folder names are written below in GBK; cmd handles them fine)
+
+set "AUDIO_DIR=F:\sensevox\录音"
+set "TEXT_DIR=F:\sensevox\转写记录"
+
+echo Will delete files in:
+echo   %AUDIO_DIR%\
+echo   %TEXT_DIR%\
 echo.
-set /p ok=确认删除请输入 Y 再回车(其它键取消):
-if /i not "%ok%"=="Y" ( echo 已取消。& pause & exit /b )
-del /q "F:\sensevox\录音\*" 2>nul
-del /q "F:\sensevox\转写记录\*" 2>nul
-echo 完成,已清空。
+set /p ok=Type Y then Enter to confirm:
+if /i not "%ok%"=="Y" ( echo Cancelled & pause & exit /b )
+
+del /q "%AUDIO_DIR%\*" 2>nul
+del /q "%TEXT_DIR%\*" 2>nul
+echo.
+echo Done.
 pause

@@ -102,11 +102,13 @@ echo === [6/6] Apply patches + write default configs ===
 "%INSTALL_DIR%\venv\Scripts\python.exe" "%TOOLKIT_DIR%\scripts\apply_mods.py" "%INSTALL_DIR%\sensevox.py"
 
 REM Write default configs (override upstream defaults)
-> "%INSTALL_DIR%\assets\hotkey.txt" echo|set /p=f9
-> "%INSTALL_DIR%\assets\gtcrn_config.txt" echo|set /p=True
-> "%INSTALL_DIR%\assets\save_recording_config.txt" echo|set /p=True
-> "%INSTALL_DIR%\assets\transcript_config.txt" echo|set /p=true
-> "%INSTALL_DIR%\assets\opencc_enabled.txt" echo|set /p=false
+REM Note: must use `<nul set /p=...>file` NOT `echo|set /p=...>file`
+REM   the latter redirects echo (not set /p) and writes GBK garbage on zh-CN cmd
+<nul set /p=f9>"%INSTALL_DIR%\assets\hotkey.txt"
+<nul set /p=True>"%INSTALL_DIR%\assets\gtcrn_config.txt"
+<nul set /p=True>"%INSTALL_DIR%\assets\save_recording_config.txt"
+<nul set /p=true>"%INSTALL_DIR%\assets\transcript_config.txt"
+<nul set /p=false>"%INSTALL_DIR%\assets\opencc_enabled.txt"
 
 REM Copy task scheduler template
 copy /y "%TOOLKIT_DIR%\sensevox-task.xml" "%INSTALL_DIR%\sensevox-task.xml" >nul

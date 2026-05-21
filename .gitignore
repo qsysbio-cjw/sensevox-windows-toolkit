@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# venv（用户运行 install.bat 时建在 F:\sensevox\，不在仓库里；以防万一）
+venv/
+.venv/
+
+# 临时
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

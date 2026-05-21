@@ -114,6 +114,14 @@ EDITS = [
         '        if checks_ok:\n'
         '            wx.CallAfter(self.on_start_listening, None)'
     ),
+    (
+        "10) 启动即最小化到任务栏",
+        '    frame = MyFrame()\n    frame.Show()\n    app.MainLoop()',
+        '    frame = MyFrame()\n'
+        '    frame.Show()\n'
+        '    frame.Iconize(True)  # 启动即最小化（源码无托盘，所以缩到任务栏；点击恢复）\n'
+        '    app.MainLoop()'
+    ),
 ]
 
 

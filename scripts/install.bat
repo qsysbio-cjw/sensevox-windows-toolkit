@@ -4,12 +4,12 @@ REM  sensevox-windows-toolkit - one-click install
 REM  Default install dir = sibling of toolkit clone (override with INSTALL_DIR env)
 REM
 REM  Steps:
-REM    1. Pull upstream sensevox.py
+REM    1. Copy sensevox.py from toolkit (already patched)
 REM    2. Download SenseVoice ONNX model (int8, ~239MB)
 REM    3. Download GTCRN denoiser model (~536KB)
 REM    4. Create venv + pip install (Aliyun mirror)
-REM    5. Run apply_mods.py
-REM    6. Write default configs
+REM    5. (placeholder)
+REM    6. Write default configs + generate task xml
 REM
 REM  Requirements:
 REM    - Windows 10/11
@@ -70,17 +70,16 @@ mkdir "%INSTALL_DIR%\assets" 2>nul
 mkdir "%INSTALL_DIR%\assets\sensevoicesmallonnx" 2>nul
 
 echo.
-echo === [2/6] Pull upstream sensevox.py ===
+echo === [2/6] Copy sensevox.py from toolkit ===
 if exist "%INSTALL_DIR%\sensevox.py" (
-    echo [SKIP] sensevox.py already present
-) else (
-    curl -L -o "%INSTALL_DIR%\sensevox.py" "%GH_PREFIX%https://raw.githubusercontent.com/dapanggougou/sensevox/main/new/sensevox.py"
-    if not exist "%INSTALL_DIR%\sensevox.py" (
-        echo [ERROR] Failed to fetch source. Check network.
-        pause & exit /b 1
-    )
-    echo OK
+    echo [SKIP] sensevox.py already present - overwriting with toolkit copy
 )
+copy /y "%TOOLKIT_DIR%\sensevox.py" "%INSTALL_DIR%\sensevox.py" >nul
+if not exist "%INSTALL_DIR%\sensevox.py" (
+    echo [ERROR] Failed to copy sensevox.py from toolkit dir
+    pause & exit /b 1
+)
+echo OK
 
 echo.
 echo === [3/6] Download SenseVoice ONNX model (int8, ~239MB) ===
@@ -136,8 +135,9 @@ if errorlevel 1 ( echo [ERROR] pip install failed & pause & exit /b 1 )
 echo OK
 
 echo.
-echo === [6/6] Apply patches + write default configs ===
-"%INSTALL_DIR%\venv\Scripts\python.exe" "%TOOLKIT_DIR%\scripts\apply_mods.py" "%INSTALL_DIR%\sensevox.py"
+echo === [6/6] Write default configs ===
+REM (sensevox.py is shipped pre-patched in the toolkit; no apply_mods needed.
+REM  scripts\apply_mods.py is retained for archival / re-patching a fresh upstream.)
 
 REM Write default configs (override upstream defaults)
 REM Note: must use `<nul set /p=...>file` NOT `echo|set /p=...>file`

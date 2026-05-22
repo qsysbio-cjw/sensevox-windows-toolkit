@@ -2,14 +2,14 @@
 
 把 [sensevox](https://github.com/dapanggougou/sensevox)（基于 SenseVoice 的 Windows 离线中英语音输入）从「能跑」变成「**开机自启 + 崩溃自愈 + 转写日志的省心常驻服务**」的一套脚本、补丁与踩坑经验。
 
-> ⚠️ **许可证声明**：上游 sensevox **没有任何 LICENSE**（默认保留所有权利）。本仓库**不分发它的任何代码或编译产物**，只提供：我们自己的脚本、一份**改动补丁（diff）** 和文档。`install.bat` 会让你**从上游官方仓库自动拉源码**后在本地打补丁。模型同理从 sherpa-onnx / GTCRN 上游下载。请尊重各上游的权利。
+> 📝 **关于上游与本仓库**：上游 sensevox 没有 LICENSE。本工具是个人/小圈子自用工具，为防上游失效造成装机断链，仓库内含一份已打补丁的 `sensevox.py`（基于上游 `dapanggougou/sensevox` 改造，12 处增强见 `scripts/apply_mods.py`）。模型文件仍从 sherpa-onnx / GTCRN 上游下载。版权归各原作者所有，本仓库仅作个人工具便利使用，不用于商业分发。
 
 ---
 
 ## 这套东西给你什么
 
-- **一键安装**：拉上游源码 → 下模型 → 建 venv → 打补丁 → 写默认配置
-- **9 处增强（补丁形式，可读 diff 在 `patch/`）**：
+- **一键安装**：copy 已打补丁的 sensevox.py → 下模型 → 建 venv → 写默认配置
+- **12 处增强（diff 见 `scripts/apply_mods.py`）**：
   - 单次录音上限 **30s → 120s**（上游写死，GUI 改不了）
   - **按天转写日志**：每句即时写入 `转写记录/YYYY-MM-DD.md`（UTF-8，`- [HH:MM:SS] 文本`），可开关
   - **保留全部标点**（上游会把短句末尾标点删掉，本补丁让识别原文 1:1 落地）
@@ -124,11 +124,12 @@ scripts\install.bat
 ```
 sensevox-windows-toolkit/
 ├── README.md                   本文档
+├── sensevox.py                 已打 12 处补丁的 sensevox 主程序（install 时复制到安装目录）
 ├── requirements.txt            Python 依赖清单（venv 安装用）
 ├── sensevox-task.xml           Windows 任务计划模板（UTF-16，已指向 venv pythonw）
 └── scripts/
-    ├── apply_mods.py           把改动应用到上游 sensevox.py（无需 git，幂等，人读 EDITS 列表）
-    ├── install.bat             一键安装：取源码+模型 → 建 venv → 打补丁
+    ├── apply_mods.py           归档：12 处补丁的 EDIT 列表（记录我们改了上游什么；install 不再调用）
+    ├── install.bat             一键安装：copy sensevox.py + 下模型 + 建 venv + 写配置
     ├── run.bat                 启动 sensevox（用 venv pythonw，不带控制台窗口）
     ├── setup-service.bat       注册任务计划（自启 + 崩溃重启）
     ├── clear-records.bat       清空 录音\ 与 转写记录\

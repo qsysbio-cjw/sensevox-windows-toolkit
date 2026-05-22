@@ -13,8 +13,11 @@ REM
 REM  Requirements:
 REM    - Windows 10/11
 REM    - Python 3.10+ in PATH
-REM    - For CN users: HuggingFace requires proxy or hf-mirror
-REM      Set HF_MIRROR=1 to use https://hf-mirror.com instead
+REM    - For CN users without VPN:
+REM        set HF_MIRROR=1   uses https://hf-mirror.com  (for SenseVoice model)
+REM        set GH_MIRROR=1   uses https://ghfast.top/   (for github.com/raw.githubusercontent.com)
+REM      Note: the toolkit clone itself also needs the mirror, e.g.
+REM        git clone https://ghfast.top/https://github.com/qsysbio-cjw/sensevox-windows-toolkit.git
 REM ==========================================================
 
 set "INSTALL_DIR=F:\sensevox"
@@ -27,6 +30,14 @@ if defined HF_MIRROR (
     echo [INFO] Using HuggingFace mirror: hf-mirror.com
 ) else (
     set "HF_BASE=https://huggingface.co"
+)
+
+REM GitHub mirror logic (for CN users without VPN; covers github.com + raw.githubusercontent.com)
+if defined GH_MIRROR (
+    set "GH_PREFIX=https://ghfast.top/"
+    echo [INFO] Using GitHub mirror prefix: ghfast.top
+) else (
+    set "GH_PREFIX="
 )
 
 echo.
@@ -56,7 +67,7 @@ mkdir "%INSTALL_DIR%\assets\sensevoicesmallonnx" 2>nul
 
 echo.
 echo === [2/6] Pull upstream sensevox.py ===
-curl -L -o "%INSTALL_DIR%\sensevox.py" "https://raw.githubusercontent.com/dapanggougou/sensevox/main/new/sensevox.py"
+curl -L -o "%INSTALL_DIR%\sensevox.py" "%GH_PREFIX%https://raw.githubusercontent.com/dapanggougou/sensevox/main/new/sensevox.py"
 if not exist "%INSTALL_DIR%\sensevox.py" (
     echo [ERROR] Failed to fetch source. Check network.
     pause & exit /b 1
@@ -88,7 +99,7 @@ echo OK
 echo.
 echo === [4/6] Download GTCRN denoiser model (~536KB) ===
 curl -L -o "%INSTALL_DIR%\assets\gtcrn_simple.onnx" ^
-    "https://github.com/Xiaobin-Rong/gtcrn/raw/main/checkpoints/model_trained_on_dns3.onnx"
+    "%GH_PREFIX%https://github.com/Xiaobin-Rong/gtcrn/raw/main/checkpoints/model_trained_on_dns3.onnx"
 if not exist "%INSTALL_DIR%\assets\gtcrn_simple.onnx" (
     echo [WARN] GTCRN download failed, denoise feature disabled (not critical)
 )

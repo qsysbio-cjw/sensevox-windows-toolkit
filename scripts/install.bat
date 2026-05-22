@@ -67,41 +67,57 @@ mkdir "%INSTALL_DIR%\assets\sensevoicesmallonnx" 2>nul
 
 echo.
 echo === [2/6] Pull upstream sensevox.py ===
-curl -L -o "%INSTALL_DIR%\sensevox.py" "%GH_PREFIX%https://raw.githubusercontent.com/dapanggougou/sensevox/main/new/sensevox.py"
-if not exist "%INSTALL_DIR%\sensevox.py" (
-    echo [ERROR] Failed to fetch source. Check network.
-    pause & exit /b 1
+if exist "%INSTALL_DIR%\sensevox.py" (
+    echo [SKIP] sensevox.py already present
+) else (
+    curl -L -o "%INSTALL_DIR%\sensevox.py" "%GH_PREFIX%https://raw.githubusercontent.com/dapanggougou/sensevox/main/new/sensevox.py"
+    if not exist "%INSTALL_DIR%\sensevox.py" (
+        echo [ERROR] Failed to fetch source. Check network.
+        pause & exit /b 1
+    )
+    echo OK
 )
-echo OK
 
 echo.
 echo === [3/6] Download SenseVoice ONNX model (int8, ~239MB) ===
-echo (Upstream sensevox.zip does NOT bundle model, must fetch separately)
-curl -L -o "%INSTALL_DIR%\assets\sensevoicesmallonnx\model.onnx" ^
-    "%HF_BASE%/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/model.int8.onnx"
-curl -L -o "%INSTALL_DIR%\assets\sensevoicesmallonnx\tokens.txt" ^
-    "%HF_BASE%/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/tokens.txt"
-if not exist "%INSTALL_DIR%\assets\sensevoicesmallonnx\model.onnx" (
-    echo [ERROR] model.onnx download failed.
-    echo         CN users: rerun with  set HF_MIRROR=1  then install.bat
-    echo         Or use VPN/proxy.
-    pause & exit /b 1
+echo Upstream sensevox.zip does NOT bundle model, must fetch separately
+if exist "%INSTALL_DIR%\assets\sensevoicesmallonnx\model.onnx" (
+    echo [SKIP] model.onnx already present
+) else (
+    curl -L -o "%INSTALL_DIR%\assets\sensevoicesmallonnx\model.onnx" ^
+        "%HF_BASE%/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/model.int8.onnx"
+    if not exist "%INSTALL_DIR%\assets\sensevoicesmallonnx\model.onnx" (
+        echo [ERROR] model.onnx download failed.
+        echo         CN users: rerun with  set HF_MIRROR=1  then install.bat
+        echo         Or use VPN/proxy.
+        pause & exit /b 1
+    )
 )
-if not exist "%INSTALL_DIR%\assets\sensevoicesmallonnx\tokens.txt" (
-    echo [ERROR] tokens.txt download failed (model.onnx is fine but tokens.txt missing).
-    echo         sensevox will fail with "Tokens file not found" on startup.
-    echo         CN users: rerun with  set HF_MIRROR=1  then install.bat
-    echo         Or use VPN/proxy.
-    pause & exit /b 1
+if exist "%INSTALL_DIR%\assets\sensevoicesmallonnx\tokens.txt" (
+    echo [SKIP] tokens.txt already present
+) else (
+    curl -L -o "%INSTALL_DIR%\assets\sensevoicesmallonnx\tokens.txt" ^
+        "%HF_BASE%/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/tokens.txt"
+    if not exist "%INSTALL_DIR%\assets\sensevoicesmallonnx\tokens.txt" (
+        echo [ERROR] tokens.txt download failed - model.onnx OK but tokens.txt missing.
+        echo         sensevox will fail with "Tokens file not found" on startup.
+        echo         CN users: rerun with  set HF_MIRROR=1  then install.bat
+        echo         Or use VPN/proxy.
+        pause & exit /b 1
+    )
 )
 echo OK
 
 echo.
 echo === [4/6] Download GTCRN denoiser model (~536KB) ===
-curl -L -o "%INSTALL_DIR%\assets\gtcrn_simple.onnx" ^
-    "%GH_PREFIX%https://github.com/Xiaobin-Rong/gtcrn/raw/main/checkpoints/model_trained_on_dns3.onnx"
-if not exist "%INSTALL_DIR%\assets\gtcrn_simple.onnx" (
-    echo [WARN] GTCRN download failed, denoise feature disabled (not critical)
+if exist "%INSTALL_DIR%\assets\gtcrn_simple.onnx" (
+    echo [SKIP] gtcrn_simple.onnx already present
+) else (
+    curl -L -o "%INSTALL_DIR%\assets\gtcrn_simple.onnx" ^
+        "%GH_PREFIX%https://github.com/Xiaobin-Rong/gtcrn/raw/main/checkpoints/model_trained_on_dns3.onnx"
+    if not exist "%INSTALL_DIR%\assets\gtcrn_simple.onnx" (
+        echo [WARN] GTCRN download failed, denoise feature disabled (not critical)
+    )
 )
 
 echo.

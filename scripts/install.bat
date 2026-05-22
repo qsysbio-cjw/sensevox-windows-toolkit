@@ -22,10 +22,10 @@ REM        git clone https://ghfast.top/https://github.com/qsysbio-cjw/sensevox-
 REM ==========================================================
 
 set "TOOLKIT_DIR=%~dp0.."
+for %%I in ("%TOOLKIT_DIR%") do set "TOOLKIT_DIR=%%~fI"
 REM Default INSTALL_DIR = sibling of clone (e.g. cloned to D:\foo\sensevox-windows-toolkit\
 REM => installs to D:\foo\sensevox\). Override with: set INSTALL_DIR=X:\path before running.
 if not defined INSTALL_DIR set "INSTALL_DIR=%TOOLKIT_DIR%\..\sensevox"
-REM Resolve `..` to a clean absolute path
 for %%I in ("%INSTALL_DIR%") do set "INSTALL_DIR=%%~fI"
 set "PIP_MIRROR=https://mirrors.aliyun.com/pypi/simple"
 
@@ -56,10 +56,9 @@ python --version 2>&1
 echo HF source:  %HF_BASE%
 echo.
 if exist "%INSTALL_DIR%\sensevox.py" (
-    echo [WARN] %INSTALL_DIR%\sensevox.py already exists.
-    echo        Continuing will overwrite. Backup first if needed.
-    set /p ok=Type Y then Enter to continue:
-    if /i not "%ok%"=="Y" exit /b 0
+    echo [INFO] %INSTALL_DIR% already exists - resuming install
+    echo        Per-step skip-if-exists will preserve downloaded files.
+    echo        If you want a clean reinstall: run scripts\uninstall.bat first.
 )
 echo Press any key to start...
 pause >nul
@@ -150,8 +149,13 @@ REM   the latter redirects echo (not set /p) and writes GBK garbage on zh-CN cmd
 <nul set /p=false>"%INSTALL_DIR%\assets\opencc_enabled.txt"
 
 REM Generate task scheduler XML with the actual install path injected.
-REM Template uses F:\sensevox as the placeholder; PowerShell handles UTF-16 cleanly.
-powershell -NoProfile -Command "$p='%INSTALL_DIR%'.Replace('\\','\\'); (Get-Content -Raw -Encoding Unicode '%TOOLKIT_DIR%\sensevox-task.xml') -replace [regex]::Escape('F:\sensevox'), $p | Set-Content -Encoding Unicode '%INSTALL_DIR%\sensevox-task.xml'"
+REM Template uses F:\sensevox as the placeholder; literal .Replace() avoids regex pitfalls
+REM (e.g. if INSTALL_DIR contains $ or backslash sequences). UTF-16 LE preserved.
+powershell -NoProfile -Command "(Get-Content -Raw -Encoding Unicode '%TOOLKIT_DIR%\sensevox-task.xml').Replace('F:\sensevox', '%INSTALL_DIR%') | Set-Content -Encoding Unicode -NoNewline '%INSTALL_DIR%\sensevox-task.xml'"
+if not exist "%INSTALL_DIR%\sensevox-task.xml" (
+    echo [ERROR] Failed to generate sensevox-task.xml
+    pause & exit /b 1
+)
 
 echo.
 echo ==========================================

@@ -43,7 +43,7 @@
 - Windows 10/11
 - Python **3.10+**（建议 3.13，实测 OK）；装好且在 PATH（cmd 输 `python --version` 能出版本）
 - ~1.5GB 空闲磁盘（venv ~200MB + 模型 ~240MB + Python 包等）
-- 首次需联网拉源码/模型；国内 pip 走阿里云
+- **需要梯子**：要从 github.com + huggingface.co 拉源码和模型。纯国内网试过 ghfast.top 镜像，228MB 模型 ~40KB/s 基本等不动，所以默认就是挂梯子跑。pip 走阿里云不用梯子。
 
 ---
 
@@ -54,7 +54,9 @@
 git clone https://github.com/qsysbio-cjw/sensevox-windows-toolkit.git
 cd sensevox-windows-toolkit
 
-:: 2. 安装（默认装到 F:\sensevox\，要改改 install.bat 里的 INSTALL_DIR）
+:: 2. 安装（默认装到 F:\sensevox\）
+::    想换地方：先编辑 scripts\install.bat 第 23 行的 INSTALL_DIR，
+::    同步改 sensevox-task.xml 里的两处 F:\sensevox 路径（自启用）
 scripts\install.bat
 
 :: 3. 测试运行

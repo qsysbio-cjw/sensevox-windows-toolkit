@@ -71,7 +71,14 @@ curl -L -o "%INSTALL_DIR%\assets\sensevoicesmallonnx\model.onnx" ^
 curl -L -o "%INSTALL_DIR%\assets\sensevoicesmallonnx\tokens.txt" ^
     "%HF_BASE%/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/tokens.txt"
 if not exist "%INSTALL_DIR%\assets\sensevoicesmallonnx\model.onnx" (
-    echo [ERROR] Model download failed.
+    echo [ERROR] model.onnx download failed.
+    echo         CN users: rerun with  set HF_MIRROR=1  then install.bat
+    echo         Or use VPN/proxy.
+    pause & exit /b 1
+)
+if not exist "%INSTALL_DIR%\assets\sensevoicesmallonnx\tokens.txt" (
+    echo [ERROR] tokens.txt download failed (model.onnx is fine but tokens.txt missing).
+    echo         sensevox will fail with "Tokens file not found" on startup.
     echo         CN users: rerun with  set HF_MIRROR=1  then install.bat
     echo         Or use VPN/proxy.
     pause & exit /b 1

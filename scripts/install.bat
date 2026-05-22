@@ -100,7 +100,6 @@ echo OK
 
 echo.
 echo === [3/6] Download SenseVoice ONNX model (int8, ~239MB) ===
-echo Upstream sensevox.zip does NOT bundle model, must fetch separately
 if exist "%INSTALL_DIR%\assets\sensevoicesmallonnx\model.onnx" (
     echo [SKIP] model.onnx already present
 ) else (

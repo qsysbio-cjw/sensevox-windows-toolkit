@@ -22,13 +22,12 @@
 
 ## 真正值钱的部分：我们踩过的坑
 
-1. **GitHub 的 `sensevox.zip`（36MB）不含模型。** 上游 README 写"内置 200MB"指的是网盘版。症状：启动报 `Model file not found ... model.onnx`。**解法**：下 int8 模型 `model.int8.onnx`（239MB）改名 `model.onnx` 放到 `assets/sensevoicesmallonnx/`。
-   `install.bat` 已经把这步自动化。
+1. **模型要单独下载。** 上游 GitHub 的 `sensevox.zip`（36MB）不含模型，README 写"内置 200MB"指的是网盘版。症状：启动报 `Model file not found ... model.onnx`。`install.bat` 已自动从 HuggingFace 拉 int8 模型（239MB）落到 `assets/sensevoicesmallonnx/model.onnx`，无需手动。
 2. **热键千万别用修饰键。** 全局键盘钩子挂在 Alt/Ctrl/Shift（或空格）上，一旦没正确释放会让修饰键「卡死」→ 中文打不了、按钮失灵、终端错乱，要重启才好。**用 F9/F10 这类非修饰、非打字键。** 出事逃生：任务管理器结束进程即解钩子。
    `install.bat` 默认热键写 **F9**。
 3. **它是 CPU-only，别折腾 GPU。** 作者刻意不上显卡（通用性 + 包体积）。按住即说场景里 SenseVoice int8 在 CPU 上 ~70ms，GPU 没收益，笔记本上还白耗电。
 4. **没有内置开机自启 / 托盘。** 用任务计划程序做真·托管（自启 + 崩溃重启）；想隐藏窗口可手动最小化（sensevox 源码层面没托盘支持）。
-5. **30s 硬上限**（`MAX_RECORD_SECONDS`），GUI 不可调；本补丁提到 120s。真要几分钟长录的正解是 VAD 分段（本补丁未做）——SenseVoice 偏好短段，单次几分钟会变慢、可能掉准确率。
+5. **30s 硬上限**（`MAX_RECORD_SECONDS`），GUI 不可调；本补丁改到 120s。真要几分钟长录的正解是 VAD 分段（本补丁未做）——SenseVoice 偏好短段，单次几分钟会变慢、可能掉准确率。
 6. **PyInstaller 打包的坑**：上游用 PyInstaller 打 exe，但对**单文件 Python 模块**（如 `miniaudio.py`）的处理有 bug，重打包会漏 → 启动报 `Miniaudio library not found`。**本工具箱采用 venv 直跑路线**，绕开打包问题；如果有人想打 exe，需要在 .spec 里显式 `('miniaudio.py', '.', 'DATA')` 这样塞进去。
 7. **Windows 编码雷区**：
    - 含中文路径的 `.bat` 要存 **GBK**（或用 `chcp 65001` + UTF-8）
@@ -139,7 +138,7 @@ sensevox-windows-toolkit/
 
 ---
 
-## 配置文件（位于 `F:\sensevox\assets\`，都是纯文本）
+## 配置文件（位于 `<安装目录>\assets\`，都是纯文本）
 
 | 文件 | 默认值 | 说明 |
 |---|---|---|
@@ -161,14 +160,14 @@ sensevox-windows-toolkit/
 | `Miniaudio library not found` | 依赖装不全；激活 venv 后 `pip install miniaudio==1.71` |
 | 按 F9 无反应 | sensevox 窗口里看是否「Listener thread started」；没有就是补丁第 9 处没生效 |
 | 热键设成 Alt 后系统卡死 | 任务管理器结束 pythonw 进程，重启后改 `hotkey.txt` 为 f9 |
-| 模型下载卡死 | 国内挂代理或换 `hf-mirror.com`：`set HF_ENDPOINT=https://hf-mirror.com` |
+| 模型下载卡死 | 国内挂代理；或换 hf-mirror.com：`set HF_MIRROR=1` 后重跑 install.bat；或用我们的 release 镜像 `set MIRROR_OWN=1` |
 | 任务计划注册失败 | `setup-service.bat` 要以管理员身份运行 |
 
 ---
 
 ## 致谢 / 上游
 
-- **应用**：[dapanggougou/sensevox](https://github.com/dapanggougou/sensevox)（无许可证，自行获取源码）
+- **应用**：[dapanggougou/sensevox](https://github.com/dapanggougou/sensevox)（上游无 LICENSE；本仓库 ship 了一份基于其的改造版供自用，详见顶部声明）
 - **ASR 模型**：FunASR **SenseVoice-Small**，经 [k2-fsa/sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) 导出的 ONNX int8
 - **降噪模型**：[Xiaobin-Rong/gtcrn](https://github.com/Xiaobin-Rong/gtcrn)
 - **本工具箱**（脚本 + 文档 + 补丁）：MIT License

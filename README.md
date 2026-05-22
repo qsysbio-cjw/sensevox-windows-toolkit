@@ -41,38 +41,81 @@
 ## 依赖
 
 - Windows 10/11
-- Python **3.10+**（建议 3.13，实测 OK）；装好且在 PATH（cmd 输 `python --version` 能出版本）
+- Python **3.10+**（建议 3.13，实测 OK）；装好且在 PATH
+- Git（用来 clone 本仓库；没 git 也可以走 ZIP 路径，见 [备选](#备选无-git-用-zip-下载)）
 - ~1.5GB 空闲磁盘（venv ~200MB + 模型 ~240MB + Python 包等）
 - **需要梯子**：要从 github.com + huggingface.co 拉源码和模型。纯国内网试过 ghfast.top 镜像，228MB 模型 ~40KB/s 基本等不动，所以默认就是挂梯子跑。pip 走阿里云不用梯子。
+- **安装路径建议纯英文**（部分 ONNX 运行时对非 ASCII 路径兼容性差，曾遇到 `Protobuf parsing failed` / `invalid unordered_map<K, T> key` 报错）
+
+---
+
+## Step 0：检查 / 安装 Python + Git
+
+在 **PowerShell** 里跑（Win10/11 自带 winget）：
+
+```powershell
+# 1. 先验证是否已经装好
+python --version
+git --version
+
+# 2. 缺什么装什么（已装的会自动跳过）
+winget install -e --id Python.Python.3.13
+winget install -e --id Git.Git
+
+# 3. 装完后关掉当前 PowerShell，重开一个新的，再验证一次
+python --version
+git --version
+```
+
+> Python 安装器**默认勾上 "Add to PATH"**——winget 装的是命令行模式，已经处理好。如果是手动从 python.org 下载安装包，**第一个屏幕底部那个 "Add python.exe to PATH" 一定要勾**，否则装完 cmd 找不到 python。
 
 ---
 
 ## 快速开始
 
-```bat
-:: 1. 克隆本仓库
+```powershell
+# 1. 选一个全英文路径作为父目录，cd 过去（例：D:\tools）
+cd D:\tools
+
+# 2. clone 本仓库
 git clone https://github.com/qsysbio-cjw/sensevox-windows-toolkit.git
 cd sensevox-windows-toolkit
 
-:: 2. 安装（默认装到 clone 的同级目录，即 ..\sensevox\）
-::    比如 clone 到 D:\foo\sensevox-windows-toolkit\，就装到 D:\foo\sensevox\
-::    想换别处：先 `set INSTALL_DIR=X:\path\sensevox` 再跑
+# 3. 安装（默认装到 clone 的同级目录，即 D:\tools\sensevox\）
+#    想换别处：先 set INSTALL_DIR=X:\path\sensevox 再跑
 scripts\install.bat
 
-:: 3. 测试运行
+# 4. 测试运行（按 F9 说一句话，文字应出现在光标位置）
 scripts\run.bat
-:: 窗口出来后日志显示 "Listener thread started. Monitoring hotkey: 'f9'."
-:: 按 F9 说一句话试试，文字应该在你光标位置出现，标点也保留
 
-:: 4. 注册开机自启服务（需要管理员权限）
+# 5. 注册开机自启服务（需要管理员 PowerShell）
 scripts\setup-service.bat
 ```
 
 之后：
-- 转写日志看 `F:\sensevox\转写记录\YYYY-MM-DD.md`
-- 录音原文件在 `F:\sensevox\录音\`
+- 转写日志看 `<安装目录>\转写记录\YYYY-MM-DD.md`
+- 录音原文件在 `<安装目录>\录音\`
+- 想换热键 / 关录音 / 开简繁转换：直接在 sensevox 主窗口 GUI 里改，自动保存到 `assets\*.txt`
 - 清空旧记录：`scripts\clear-records.bat`
 - 完全卸载：`scripts\uninstall.bat`
+
+---
+
+## 备选：无 git 用 ZIP 下载
+
+不想装 git 也行，github 自带 ZIP 下载：
+
+```powershell
+# 在 D:\tools 之类的英文路径下：
+Invoke-WebRequest -Uri https://github.com/qsysbio-cjw/sensevox-windows-toolkit/archive/refs/heads/main.zip -OutFile sensevox-toolkit.zip
+Expand-Archive sensevox-toolkit.zip -DestinationPath .
+Rename-Item sensevox-windows-toolkit-main sensevox-windows-toolkit
+Remove-Item sensevox-toolkit.zip
+cd sensevox-windows-toolkit
+scripts\install.bat
+```
+
+后续 `run.bat` / `setup-service.bat` 一样。缺点：以后想更新得手动重下 ZIP；用 git 的 `git pull` 一行搞定。
 
 ---
 

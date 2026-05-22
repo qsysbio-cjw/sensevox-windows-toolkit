@@ -115,11 +115,13 @@ EDITS = [
         '            wx.CallAfter(self.on_start_listening, None)'
     ),
     (
-        "10) 启动即最小化到任务栏",
+        "10) 启动即 Hide 到托盘 + X 按钮拦截为隐藏",
         '    frame = MyFrame()\n    frame.Show()\n    app.MainLoop()',
         '    frame = MyFrame()\n'
-        '    frame.Show()\n'
-        '    frame.Iconize(True)  # 启动即最小化（源码无托盘，所以缩到任务栏；点击恢复）\n'
+        '    frame.Bind(wx.EVT_CLOSE, lambda e: frame.Hide())  # X 拦截为隐藏\n'
+        '    frame.Hide()  # 启动即完全隐藏到系统托盘\n'
+        '    tray = SensevoxTrayIcon(frame)\n'
+        '    frame._tray = tray  # 持引用防 GC\n'
         '    app.MainLoop()'
     ),
     (
@@ -168,14 +170,27 @@ EDITS = [
         '    app = wx.App(False)'
     ),
     (
-        "11c) 启动即 Hide + 托盘 + X 拦截",
-        '    frame = MyFrame()\n    frame.Show()\n    frame.Iconize(True)  # 启动即最小化（源码无托盘，所以缩到任务栏；点击恢复）\n    app.MainLoop()',
-        '    frame = MyFrame()\n'
-        '    frame.Bind(wx.EVT_CLOSE, lambda e: frame.Hide())  # X 拦截为隐藏\n'
-        '    frame.Hide()  # 启动即完全隐藏到系统托盘\n'
-        '    tray = SensevoxTrayIcon(frame)\n'
-        '    frame._tray = tray  # 持引用防 GC\n'
-        '    app.MainLoop()'
+        "12) 自绘托盘图标（绿底白 S，替代 stock i 图标）",
+        '        icon = wx.ArtProvider.GetIcon(wx.ART_INFORMATION, wx.ART_OTHER, (16, 16))\n'
+        '        self.SetIcon(icon, "sensevox")',
+        '        self.SetIcon(self._make_icon(), "sensevox")\n'
+        '\n'
+        '    @staticmethod\n'
+        '    def _make_icon():\n'
+        '        """运行时画 32x32 绿底白 S 图标（零外部资源依赖）。"""\n'
+        '        bmp = wx.Bitmap(32, 32)\n'
+        '        dc = wx.MemoryDC(bmp)\n'
+        '        dc.SetBackground(wx.Brush(wx.Colour(0, 180, 80)))\n'
+        '        dc.Clear()\n'
+        '        dc.SetTextForeground(wx.WHITE)\n'
+        '        font = wx.Font(22, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)\n'
+        '        dc.SetFont(font)\n'
+        '        w, h = dc.GetTextExtent("S")\n'
+        '        dc.DrawText("S", (32 - w) // 2, (32 - h) // 2)\n'
+        '        dc.SelectObject(wx.NullBitmap)\n'
+        '        icon = wx.Icon()\n'
+        '        icon.CopyFromBitmap(bmp)\n'
+        '        return icon'
     ),
 ]
 

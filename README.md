@@ -54,9 +54,9 @@
 git clone https://github.com/qsysbio-cjw/sensevox-windows-toolkit.git
 cd sensevox-windows-toolkit
 
-:: 2. 安装（默认装到 F:\sensevox\）
-::    想换地方：先编辑 scripts\install.bat 第 23 行的 INSTALL_DIR，
-::    同步改 sensevox-task.xml 里的两处 F:\sensevox 路径（自启用）
+:: 2. 安装（默认装到 clone 的同级目录，即 ..\sensevox\）
+::    比如 clone 到 D:\foo\sensevox-windows-toolkit\，就装到 D:\foo\sensevox\
+::    想换别处：先 `set INSTALL_DIR=X:\path\sensevox` 再跑
 scripts\install.bat
 
 :: 3. 测试运行

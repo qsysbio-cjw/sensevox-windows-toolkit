@@ -1,6 +1,7 @@
 @echo off
 REM ==========================================================
-REM  sensevox-windows-toolkit - one-click install to F:\sensevox\
+REM  sensevox-windows-toolkit - one-click install
+REM  Default install dir = sibling of toolkit clone (override with INSTALL_DIR env)
 REM
 REM  Steps:
 REM    1. Pull upstream sensevox.py
@@ -20,8 +21,12 @@ REM      Note: the toolkit clone itself also needs the mirror, e.g.
 REM        git clone https://ghfast.top/https://github.com/qsysbio-cjw/sensevox-windows-toolkit.git
 REM ==========================================================
 
-set "INSTALL_DIR=F:\sensevox"
 set "TOOLKIT_DIR=%~dp0.."
+REM Default INSTALL_DIR = sibling of clone (e.g. cloned to D:\foo\sensevox-windows-toolkit\
+REM => installs to D:\foo\sensevox\). Override with: set INSTALL_DIR=X:\path before running.
+if not defined INSTALL_DIR set "INSTALL_DIR=%TOOLKIT_DIR%\..\sensevox"
+REM Resolve `..` to a clean absolute path
+for %%I in ("%INSTALL_DIR%") do set "INSTALL_DIR=%%~fI"
 set "PIP_MIRROR=https://mirrors.aliyun.com/pypi/simple"
 
 REM HuggingFace mirror logic
@@ -144,8 +149,9 @@ REM   the latter redirects echo (not set /p) and writes GBK garbage on zh-CN cmd
 <nul set /p=true>"%INSTALL_DIR%\assets\transcript_config.txt"
 <nul set /p=false>"%INSTALL_DIR%\assets\opencc_enabled.txt"
 
-REM Copy task scheduler template
-copy /y "%TOOLKIT_DIR%\sensevox-task.xml" "%INSTALL_DIR%\sensevox-task.xml" >nul
+REM Generate task scheduler XML with the actual install path injected.
+REM Template uses F:\sensevox as the placeholder; PowerShell handles UTF-16 cleanly.
+powershell -NoProfile -Command "$p='%INSTALL_DIR%'.Replace('\\','\\'); (Get-Content -Raw -Encoding Unicode '%TOOLKIT_DIR%\sensevox-task.xml') -replace [regex]::Escape('F:\sensevox'), $p | Set-Content -Encoding Unicode '%INSTALL_DIR%\sensevox-task.xml'"
 
 echo.
 echo ==========================================

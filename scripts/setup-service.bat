@@ -7,13 +7,20 @@ echo.
 echo IMPORTANT: close any running sensevox window FIRST,
 echo            then this will start a fresh managed one.
 echo.
+
+REM Resolve install dir the same way install.bat does (clone-sibling default + env override)
+set "TOOLKIT_DIR=%~dp0.."
+if not defined INSTALL_DIR set "INSTALL_DIR=%TOOLKIT_DIR%\..\sensevox"
+for %%I in ("%INSTALL_DIR%") do set "INSTALL_DIR=%%~fI"
+echo Using install dir: %INSTALL_DIR%
+echo.
 pause
 
 REM remove the older simple startup launcher if it exists (avoid double-launch)
 del "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\sensevox-autostart.bat" 2>nul
 
 REM register / overwrite the scheduled task from the XML
-schtasks /create /tn "sensevox" /xml "F:\sensevox\sensevox-task.xml" /f
+schtasks /create /tn "sensevox" /xml "%INSTALL_DIR%\sensevox-task.xml" /f
 if errorlevel 1 (
   echo.
   echo [!] Failed to register. Try: right-click this file -^> Run as administrator.

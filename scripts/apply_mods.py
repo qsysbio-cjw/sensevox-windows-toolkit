@@ -119,7 +119,8 @@ EDITS = [
         '    frame = MyFrame()\n    frame.Show()\n    app.MainLoop()',
         '    frame = MyFrame()\n'
         '    frame.Bind(wx.EVT_CLOSE, lambda e: frame.Hide())  # X 拦截为隐藏\n'
-        '    frame.Hide()  # 启动即完全隐藏到系统托盘\n'
+        '    frame.Show()   # 先 realize 窗口（不 Show 过的 frame，后续 Show 在 Windows 上可能不生效）\n'
+        '    frame.Hide()   # 再立刻隐藏到托盘\n'
         '    tray = SensevoxTrayIcon(frame)\n'
         '    frame._tray = tray  # 持引用防 GC\n'
         '    app.MainLoop()'

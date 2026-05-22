@@ -81,10 +81,8 @@ sensevox-windows-toolkit/
 ├── README.md                   本文档
 ├── requirements.txt            Python 依赖清单（venv 安装用）
 ├── sensevox-task.xml           Windows 任务计划模板（UTF-16，已指向 venv pythonw）
-├── patch/
-│   └── sensevox.patch          所有改动的 unified diff（人读）
 └── scripts/
-    ├── apply_mods.py           把改动应用到上游 sensevox.py（无需 git，幂等）
+    ├── apply_mods.py           把改动应用到上游 sensevox.py（无需 git，幂等，人读 EDITS 列表）
     ├── install.bat             一键安装：取源码+模型 → 建 venv → 打补丁
     ├── run.bat                 启动 sensevox（用 venv pythonw，不带控制台窗口）
     ├── setup-service.bat       注册任务计划（自启 + 崩溃重启）

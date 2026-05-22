@@ -173,8 +173,14 @@ EDITS = [
     (
         "12) 自绘托盘图标（绿底白 S，替代 stock i 图标）",
         '        icon = wx.ArtProvider.GetIcon(wx.ART_INFORMATION, wx.ART_OTHER, (16, 16))\n'
-        '        self.SetIcon(icon, "sensevox")',
+        '        self.SetIcon(icon, "sensevox")\n'
+        '        self.Bind(wx.adv.EVT_TASKBAR_LEFT_DCLICK, self.on_toggle)\n'
+        '        self.Bind(wx.EVT_MENU, self.on_toggle, id=self.ID_TOGGLE)\n'
+        '        self.Bind(wx.EVT_MENU, self.on_exit, id=self.ID_EXIT)',
         '        self.SetIcon(self._make_icon(), "sensevox")\n'
+        '        self.Bind(wx.adv.EVT_TASKBAR_LEFT_DCLICK, self.on_toggle)\n'
+        '        self.Bind(wx.EVT_MENU, self.on_toggle, id=self.ID_TOGGLE)\n'
+        '        self.Bind(wx.EVT_MENU, self.on_exit, id=self.ID_EXIT)\n'
         '\n'
         '    @staticmethod\n'
         '    def _make_icon():\n'

@@ -122,6 +122,61 @@ EDITS = [
         '    frame.Iconize(True)  # 启动即最小化（源码无托盘，所以缩到任务栏；点击恢复）\n'
         '    app.MainLoop()'
     ),
+    (
+        "11a) import wx.adv（托盘所需）",
+        'import wx\nimport ctypes',
+        'import wx\nimport wx.adv\nimport ctypes'
+    ),
+    (
+        "11b) 插入 SensevoxTrayIcon 类",
+        "if __name__ == '__main__':\n    app = wx.App(False)",
+        'class SensevoxTrayIcon(wx.adv.TaskBarIcon):\n'
+        '    """系统托盘图标：双击切换窗口可见性，右键菜单含退出。"""\n'
+        '    ID_TOGGLE = wx.NewIdRef()\n'
+        '    ID_EXIT = wx.NewIdRef()\n'
+        '\n'
+        '    def __init__(self, frame):\n'
+        '        super().__init__()\n'
+        '        self.frame = frame\n'
+        '        icon = wx.ArtProvider.GetIcon(wx.ART_INFORMATION, wx.ART_OTHER, (16, 16))\n'
+        '        self.SetIcon(icon, "sensevox")\n'
+        '        self.Bind(wx.adv.EVT_TASKBAR_LEFT_DCLICK, self.on_toggle)\n'
+        '        self.Bind(wx.EVT_MENU, self.on_toggle, id=self.ID_TOGGLE)\n'
+        '        self.Bind(wx.EVT_MENU, self.on_exit, id=self.ID_EXIT)\n'
+        '\n'
+        '    def CreatePopupMenu(self):\n'
+        '        m = wx.Menu()\n'
+        '        m.Append(self.ID_TOGGLE, "显示/隐藏窗口")\n'
+        '        m.AppendSeparator()\n'
+        '        m.Append(self.ID_EXIT, "退出 sensevox")\n'
+        '        return m\n'
+        '\n'
+        '    def on_toggle(self, event):\n'
+        '        if self.frame.IsShown():\n'
+        '            self.frame.Hide()\n'
+        '        else:\n'
+        '            self.frame.Show()\n'
+        '            self.frame.Iconize(False)\n'
+        '            self.frame.Raise()\n'
+        '\n'
+        '    def on_exit(self, event):\n'
+        '        self.RemoveIcon()\n'
+        '        wx.CallAfter(self.frame.Destroy)\n'
+        '\n'
+        '\n'
+        "if __name__ == '__main__':\n"
+        '    app = wx.App(False)'
+    ),
+    (
+        "11c) 启动即 Hide + 托盘 + X 拦截",
+        '    frame = MyFrame()\n    frame.Show()\n    frame.Iconize(True)  # 启动即最小化（源码无托盘，所以缩到任务栏；点击恢复）\n    app.MainLoop()',
+        '    frame = MyFrame()\n'
+        '    frame.Bind(wx.EVT_CLOSE, lambda e: frame.Hide())  # X 拦截为隐藏\n'
+        '    frame.Hide()  # 启动即完全隐藏到系统托盘\n'
+        '    tray = SensevoxTrayIcon(frame)\n'
+        '    frame._tray = tray  # 持引用防 GC\n'
+        '    app.MainLoop()'
+    ),
 ]
 
 

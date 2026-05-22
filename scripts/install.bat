@@ -19,6 +19,9 @@ REM        set HF_MIRROR=1   uses https://hf-mirror.com  (for SenseVoice model)
 REM        set GH_MIRROR=1   uses https://ghfast.top/   (for github.com/raw.githubusercontent.com)
 REM      Note: the toolkit clone itself also needs the mirror, e.g.
 REM        git clone https://ghfast.top/https://github.com/qsysbio-cjw/sensevox-windows-toolkit.git
+REM    - Resilience switch:
+REM        set MIRROR_OWN=1  pulls models from our github release v1.0-models
+REM                          instead of upstream HF / GitHub (in case upstream goes down)
 REM ==========================================================
 
 set "TOOLKIT_DIR=%~dp0.."
@@ -43,6 +46,20 @@ if defined GH_MIRROR (
     echo [INFO] Using GitHub mirror prefix: ghfast.top
 ) else (
     set "GH_PREFIX="
+)
+
+REM Self-host mirror (use OUR github release assets instead of upstream HF/GitHub).
+REM Trade-off: upstream model files might disappear / move; our release is locked to known-good bytes.
+set "RELEASE_BASE=%GH_PREFIX%https://github.com/qsysbio-cjw/sensevox-windows-toolkit/releases/download/v1.0-models"
+if defined MIRROR_OWN (
+    set "MODEL_URL=%RELEASE_BASE%/model.onnx"
+    set "TOKENS_URL=%RELEASE_BASE%/tokens.txt"
+    set "GTCRN_URL=%RELEASE_BASE%/gtcrn_simple.onnx"
+    echo [INFO] Using own mirror: github.com/qsysbio-cjw/sensevox-windows-toolkit/releases/v1.0-models
+) else (
+    set "MODEL_URL=%HF_BASE%/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/model.int8.onnx"
+    set "TOKENS_URL=%HF_BASE%/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/tokens.txt"
+    set "GTCRN_URL=%GH_PREFIX%https://github.com/Xiaobin-Rong/gtcrn/raw/main/checkpoints/model_trained_on_dns3.onnx"
 )
 
 echo.
@@ -87,8 +104,7 @@ echo Upstream sensevox.zip does NOT bundle model, must fetch separately
 if exist "%INSTALL_DIR%\assets\sensevoicesmallonnx\model.onnx" (
     echo [SKIP] model.onnx already present
 ) else (
-    curl -L -o "%INSTALL_DIR%\assets\sensevoicesmallonnx\model.onnx" ^
-        "%HF_BASE%/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/model.int8.onnx"
+    curl -L -o "%INSTALL_DIR%\assets\sensevoicesmallonnx\model.onnx" "%MODEL_URL%"
     if not exist "%INSTALL_DIR%\assets\sensevoicesmallonnx\model.onnx" (
         echo [ERROR] model.onnx download failed.
         echo         CN users: rerun with  set HF_MIRROR=1  then install.bat
@@ -99,8 +115,7 @@ if exist "%INSTALL_DIR%\assets\sensevoicesmallonnx\model.onnx" (
 if exist "%INSTALL_DIR%\assets\sensevoicesmallonnx\tokens.txt" (
     echo [SKIP] tokens.txt already present
 ) else (
-    curl -L -o "%INSTALL_DIR%\assets\sensevoicesmallonnx\tokens.txt" ^
-        "%HF_BASE%/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/tokens.txt"
+    curl -L -o "%INSTALL_DIR%\assets\sensevoicesmallonnx\tokens.txt" "%TOKENS_URL%"
     if not exist "%INSTALL_DIR%\assets\sensevoicesmallonnx\tokens.txt" (
         echo [ERROR] tokens.txt download failed - model.onnx OK but tokens.txt missing.
         echo         sensevox will fail with "Tokens file not found" on startup.
@@ -116,8 +131,7 @@ echo === [4/6] Download GTCRN denoiser model (~536KB) ===
 if exist "%INSTALL_DIR%\assets\gtcrn_simple.onnx" (
     echo [SKIP] gtcrn_simple.onnx already present
 ) else (
-    curl -L -o "%INSTALL_DIR%\assets\gtcrn_simple.onnx" ^
-        "%GH_PREFIX%https://github.com/Xiaobin-Rong/gtcrn/raw/main/checkpoints/model_trained_on_dns3.onnx"
+    curl -L -o "%INSTALL_DIR%\assets\gtcrn_simple.onnx" "%GTCRN_URL%"
     if not exist "%INSTALL_DIR%\assets\gtcrn_simple.onnx" (
         echo [WARN] GTCRN download failed, denoise feature disabled (not critical)
     )

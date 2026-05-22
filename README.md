@@ -44,7 +44,8 @@
 - Python **3.10+**（建议 3.13，实测 OK）；装好且在 PATH
 - Git（用来 clone 本仓库；没 git 也可以走 ZIP 路径，见 [备选](#备选无-git-用-zip-下载)）
 - ~1.5GB 空闲磁盘（venv ~200MB + 模型 ~240MB + Python 包等）
-- **需要梯子**：要从 github.com + huggingface.co 拉源码和模型。纯国内网试过 ghfast.top 镜像，228MB 模型 ~40KB/s 基本等不动，所以默认就是挂梯子跑。pip 走阿里云不用梯子。
+- **需要梯子**：要从 github.com + huggingface.co 拉模型。纯国内网试过 ghfast.top 镜像，228MB 模型 ~40KB/s 基本等不动，所以默认就是挂梯子跑。pip 走阿里云不用梯子。
+- **上游失效保险**：模型同时镜像到本仓库的 [release v1.0-models](https://github.com/qsysbio-cjw/sensevox-windows-toolkit/releases/tag/v1.0-models)，`set MIRROR_OWN=1` 后从我们的 release 拉，避免上游迁移/挂掉导致装机失败。
 - **安装路径建议纯英文**（部分 ONNX 运行时对非 ASCII 路径兼容性差，曾遇到 `Protobuf parsing failed` / `invalid unordered_map<K, T> key` 报错）
 
 ---
